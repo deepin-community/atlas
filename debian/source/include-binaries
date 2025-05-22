@@ -14,3 +14,4 @@ debian/archdefs/riscv64/GENERIC64.tar.bz2
 debian/archdefs/s390x/IBMz964.tar.bz2
 debian/archdefs/s390x/IBMz1264.tar.bz2
 debian/archdefs/sparc64/GENERIC64.tar.bz2
+debian/archdefs/sw64/SW6B64.tar.bz2

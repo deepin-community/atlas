@@ -48,6 +48,8 @@ else ifeq ($(DEB_HOST_ARCH_CPU),amd64)
 MACHTYPE := x86SSE2
 else ifeq ($(DEB_HOST_ARCH),ia64)
 MACHTYPE := IA64Itan
+else ifeq ($(DEB_HOST_ARCH),sw64)
+MACHTYPE := SW6B
 else
 # The same as UNKNOWN, except that it does not try autodetection
 # See debian/patches/generic.diff

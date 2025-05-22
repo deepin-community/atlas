@@ -1,0 +1,267 @@
+diff --git a/CONFIG/ARCHS/Make.ext b/CONFIG/ARCHS/Make.ext
+index 10e8146..ab34f7a 100644
+--- a/CONFIG/ARCHS/Make.ext
++++ b/CONFIG/ARCHS/Make.ext
+@@ -43,7 +43,8 @@ files = AMD64K10h32SSE3.tar.bz2 AMD64K10h64SSE3.tar.bz2 \
+         USIII32.tar.bz2 USIII64.tar.bz2 USIV32.tar.bz2 USIV64.tar.bz2 \
+         UST232.tar.bz2 UST264.tar.bz2 atlas_test1.1.3.tar.bz2 \
+         lapack_test.tar.bz2 negflt.c negmmfile.c negmvfile.c negr1file.c \
+-        x86SSE132SSE1.tar.bz2 x86SSE232SSE2.tar.bz2 x86x8732.tar.bz2
++        x86SSE132SSE1.tar.bz2 x86SSE232SSE2.tar.bz2 x86x8732.tar.bz2 \
++        SW6A64.tar.bz2 SW6B64.tar.bz2 SW4D64.tar.bz2
+ 
+ all : $(files) 
+ 
+@@ -56,6 +57,24 @@ atlas_test1.1.3.tar.bz2 :
+ 	bzip2 atlas_test1.1.3.tar
+ #atlas_test1.1.3.tar.gz : $(basdRCW)/misc/atlas_test1.1.3.tar.gz
+ #	cp $(basdRCW)/misc/atlas_test1.1.3.tar.gz .
++SW4D64.tar.bz2 : $(basdr)/SW4D64
++	- rm -f /tmp/SW4D64.tar /tmp/SW4D64.tar.bz2
++	cd $(basdr) ; tar --dereference --exclude 'CVS' -c -f \
++           /tmp/SW4D64.tar SW4D64
++	bzip2 /tmp/SW4D64.tar
++	mv /tmp/SW6A64.tar.bz2 ./.
++SW6B64.tar.bz2 : $(basdr)/SW6B64
++	- rm -f /tmp/SW6B64.tar /tmp/SW6B64.tar.bz2
++	cd $(basdr) ; tar --dereference --exclude 'CVS' -c -f \
++           /tmp/SW6B64.tar SW6B64
++	bzip2 /tmp/SW6B64.tar
++	mv /tmp/SW6B64.tar.bz2 ./.
++SW6A64.tar.bz2 : $(basdr)/SW6A64
++	- rm -f /tmp/SW6A64.tar /tmp/SW6A64.tar.bz2
++	cd $(basdr) ; tar --dereference --exclude 'CVS' -c -f \
++           /tmp/SW6A64.tar SW6A64
++	bzip2 /tmp/SW6A64.tar
++	mv /tmp/SW6A64.tar.bz2 ./.
+ BOZOL1.tar.bz2 : $(basdr)/BOZOL1
+ 	- rm -f /tmp/BOZOL1.tar /tmp/BOZOL1.tar.bz2
+ 	cd $(basdr) ; tar --dereference --exclude 'CVS' -c -f \
+diff --git a/CONFIG/include/atlconf.h b/CONFIG/include/atlconf.h
+index d8de160..6f86096 100644
+--- a/CONFIG/include/atlconf.h
++++ b/CONFIG/include/atlconf.h
+@@ -16,7 +16,7 @@ enum OSTYPE {OSOther=0, OSLinux, OSSunOS, OSSunOS4, OSOSF1, OSIRIX, OSAIX,
+                        ((OS_) == OSWin64) )
+ 
+ enum ARCHFAM {AFOther=0, AFPPC, AFSPARC, AFALPHA, AFX86, AFIA64, AFMIPS,
+-              AFARM, AFS390};
++              AFARM, AFS390, AFSW64};
+ 
+ /*
+  * Corei1: Nahalem / Westmere
+@@ -25,7 +25,7 @@ enum ARCHFAM {AFOther=0, AFPPC, AFSPARC, AFALPHA, AFX86, AFIA64, AFMIPS,
+  * Corei3EP: v3 Haswell, E5-26XX
+  * Corei4: skylake
+  */
+-#define NMACH 63
++#define NMACH 66
+ static char *machnam[NMACH] =
+    {"UNKNOWN", "PPCG4", "PPCG5", "POWER3", "POWER4", "POWER5",
+     "POWER6", "POWER7", "POWER8", "POWERe6500",
+@@ -39,7 +39,8 @@ static char *machnam[NMACH] =
+     "USI", "USII", "USIII", "USIV", "UST1", "UST2", "UnknownUS",
+     "MIPSR1xK", "MIPSICE9",
+     "ARMa7", "ARMa9", "ARMa15", "ARMa17",
+-    "ARM64xgene1", "ARM64a53", "ARM64a57", "GENERIC"};
++    "ARM64xgene1", "ARM64a53", "ARM64a57",
++    "SW6A", "SW6B", "SW4D", "GENERIC"};
+ enum MACHTYPE {MACHOther, PPCG4, PPCG5, IbmPwr3, IbmPwr4, IbmPwr5,
+                IbmPwr6, IbmPwr7, IbmPwr8, Pwre6500,
+                IbmZ9, IbmZ10, IbmZ196, IbmZ12, IbmZ13, /* s390(x) in Linux */
+@@ -59,6 +60,9 @@ enum MACHTYPE {MACHOther, PPCG4, PPCG5, IbmPwr3, IbmPwr4, IbmPwr5,
+                ARM64xg,     /* includes ARMv8 */
+                ARM64a53,
+                ARM64a57,
++               SW6A,
++               SW6B,
++               SW4D,
+                GENERIC
+                };
+ #define MachIsX86(mach_) \
+@@ -84,6 +88,8 @@ enum MACHTYPE {MACHOther, PPCG4, PPCG5, IbmPwr3, IbmPwr4, IbmPwr5,
+    ( (mach_) >= ARM64xg && || (mach_) <= ARM64a57)
+ #define MachIsS390(mach_) \
+    ( (mach_) >= IbmZ9 && (mach_) <= IbmZ13 )
++#define MachIsSW64(mach_) \
++   ( (mach_) >= SW6A && (mach_) <= SW4D )
+ 
+ 
+ static char *f2c_namestr[5] = {"UNKNOWN","Add_", "Add__", "NoChange", "UpCase"};
+@@ -107,13 +113,13 @@ enum ISAEXT
+     ISA_AVXMAC, ISA_AVXFMA4, ISA_AVX, ISA_SSE3, ISA_SSE2, ISA_SSE1, ISA_3DNow,
+     ISA_NEON, ISA_NEON16, ISA_VFP3D32MAC, ISA_VFP3D16MAC};
+ 
+-#define NASMD 11
++#define NASMD 12
+ enum ASMDIA
+    {ASM_None=0, gas_x86_32, gas_x86_64, gas_sparc, gas_ppc, gas_parisc,
+-    gas_mips, gas_arm, gas_arm64, gas_wow64, gas_s390};
++    gas_mips, gas_arm, gas_arm64, gas_wow64, gas_s390, gas_sw64};
+ static char *ASMNAM[NASMD] =
+    {"",     "GAS_x8632", "GAS_x8664", "GAS_SPARC", "GAS_PPC", "GAS_PARISC",
+-    "GAS_MIPS", "GAS_ARM", "GAS_ARM64", "GAS_WOW64", "GAS_S390"};
++    "GAS_MIPS", "GAS_ARM", "GAS_ARM64", "GAS_WOW64", "GAS_S390", "GAS_SW64"};
+ 
+ /*
+  * Used for archinfo probes (can pack in bitfield)
+diff --git a/CONFIG/src/Makefile b/CONFIG/src/Makefile
+index 212b9d7..7663f7e 100644
+--- a/CONFIG/src/Makefile
++++ b/CONFIG/src/Makefile
+@@ -333,6 +333,11 @@ IRun_GAS_x8632 :
+ 	$(MAKE) $(atlrun) atldir=$(mydir) exe=xprobe_gas_x8632 args="$(args)" \
+                 redir=config0.out
+ 	- cat config0.out
++IRun_GAS_SW64 :
++	$(CC) $(CCFLAGS) -o xprobe_gas_sw64 $(SRCdir)/backend/probe_this_asm.c $(SRCdir)/backend/probe_gas_sw64.S
++	$(MAKE) $(atlrun) atldir=$(mydir) exe=xprobe_gas_sw64 args="$(args)" \
++                redir=config0.out
++	- cat config0.out
+ 
+ IRun_GAS_WOW64 :
+ 	$(CC) $(CCFLAGS) -DATL_USE64BITS=1 -o xprobe_gas_wow64 \
+diff --git a/CONFIG/src/atlcomp.txt b/CONFIG/src/atlcomp.txt
+index aa31604..d6ca3aa 100644
+--- a/CONFIG/src/atlcomp.txt
++++ b/CONFIG/src/atlcomp.txt
+@@ -328,6 +328,27 @@ MACH=ARM64a53 OS=ALL LVL=1000 COMPS=dmc
+ MACH=ARM64a53 OS=ALL LVL=1000 COMPS=f77
+    'gfortran' '-O2 -mcpu=cortex-a53'
+ #
++# SW64 sw6a defaults (untested)
++#
++MACH=SW6A OS=ALL LVL=1000 COMPS=f77
++   'gfortran' '-mcpu=sw6a -O2'
++MACH=SW6A OS=ALL LVL=1000 COMPS=gcc
++   'gcc' '-mcpu=sw6a -mtune=sw6a -O2'
++#
++# SW64 sw6b defaults (untested)
++#
++MACH=SW6B OS=ALL LVL=1000 COMPS=f77
++   'gfortran' '-mcpu=sw6b -O2'
++MACH=SW6B OS=ALL LVL=1000 COMPS=gcc
++   'gcc' '-mcpu=sw6b -mtune=sw6b -O2'
++#
++# SW64 sw4d defaults (untested)
++#
++MACH=SW4D OS=ALL LVL=1000 COMPS=f77
++   'gfortran' '-mcpu=sw4d -O2'
++MACH=SW4D OS=ALL LVL=1000 COMPS=gcc
++   'gcc' '-mcpu=sw4d -mtune=sw4d -O2'
++#
+ # Generic defaults
+ #
+ MACH=ALL OS=ALL LVL=4 COMPS=smc,dmc,skc,dkc,icc,gcc,xcc
+diff --git a/CONFIG/src/atlconf_misc.c b/CONFIG/src/atlconf_misc.c
+index 63cb1ef..927da9e 100644
+--- a/CONFIG/src/atlconf_misc.c
++++ b/CONFIG/src/atlconf_misc.c
+@@ -577,6 +577,7 @@ enum ARCHFAM ProbeArchFam(char *targ)
+       else if ( strstr(res, "i686") || strstr(res, "i586") ||
+                 strstr(res, "i486") || strstr(res, "i386") ||
+                 strstr(res, "x86") || strstr(res, "x86_64") ) fam = AFX86;
++      else if (strstr(res, "sw_64")) fam = AFSW64;
+       free(res);
+    }
+ /*
+@@ -600,6 +601,7 @@ enum ARCHFAM ProbeArchFam(char *targ)
+          else if (strstr(res, "arm")) fam = AFARM;
+          else if (strstr(res, "aarch64")) fam = AFARM;
+          else if (strstr(res, "s390")) fam = AFS390;
++         else if (strstr(res, "sw_64")) fam = AFSW64;
+          free(res);
+       }
+    }
+diff --git a/CONFIG/src/backend/Make.ext b/CONFIG/src/backend/Make.ext
+index 4743353..b261183 100644
+--- a/CONFIG/src/backend/Make.ext
++++ b/CONFIG/src/backend/Make.ext
+@@ -38,7 +38,7 @@ files = archinfo_aix.c archinfo_freebsd.c archinfo_irix.c archinfo_linux.c \
+         probe_dmac.c probe_dvec.c probe_gas_arm.S probe_gas_arm64.S \
+         probe_gas_mips.S probe_gas_parisc.S probe_gas_ppc.S probe_gas_s390.S \
+         probe_gas_sparc.S probe_gas_wow64.S probe_gas_x8632.S \
+-        probe_gas_x8664.S probe_smac.c probe_svec.c probe_this_asm.c \
++        probe_gas_x8664.S probe_gas_sw64.S probe_smac.c probe_svec.c probe_this_asm.c \
+         probe_vxz.c
+ 
+ all : $(files)
+@@ -67,6 +67,8 @@ probe_gas_arm64.S : $(basf)
+ 	$(extC) -b $(basf) -o probe_gas_arm64.S rout=probe_gas_arm64.S
+ probe_gas_s390.S : $(basf)
+ 	$(extC) -b $(basf) -o probe_gas_s390.S rout=probe_gas_s390.S
++probe_gas_sw64.S : $(basf)
++	$(extC) -b $(basf) -o probe_gas_sw64.S rout=probe_gas_sw64.S
+ probe_AVXMAC.S : $(basf)
+ 	$(extC) -b $(basf) -o probe_AVXMAC.S rout=probe_AVXMAC.S
+ probe_AVXFMA4.S : $(basf)
+diff --git a/CONFIG/src/backend/archinfo_linux.c b/CONFIG/src/backend/archinfo_linux.c
+index cdcee92..cc9eacc 100644
+--- a/CONFIG/src/backend/archinfo_linux.c
++++ b/CONFIG/src/backend/archinfo_linux.c
+@@ -340,6 +340,21 @@ enum MACHTYPE ProbeArch()
+          free(res);
+       }
+       break;
++   case AFSW64:
++      res = atlsys_1L(NULL, "fgrep 'model name' /proc/cpuinfo", 0, 0);
++      if (res && res[0] == '\0')
++      {
++         free(res);
++         res = NULL;
++      }
++      if (res)
++      {
++         if (strstr(res, "SW421") || strstr(res, "SW1621")) mach = SW6A;
++         else if (strstr(res, "SW831")) mach = SW4D;
++         else mach = SW6B;
++	 free(res);
++      }
++      break;
+    default:
+ #if 0
+       if (!CmndOneLine(NULL, "fgrep 'cpu family' /proc/cpuinfo", res))
+diff --git a/CONFIG/src/backend/probe_gas_sw64.S b/CONFIG/src/backend/probe_gas_sw64.S
+new file mode 100644
+index 0000000..917d8c9
+--- /dev/null
++++ b/CONFIG/src/backend/probe_gas_sw64.S
+@@ -0,0 +1,17 @@
++#include "atlas_asm.h"
++#
++# Linux Sunway assembly for:
++# int asm_probe(int i)
++# RETURNS: i*3
++#
++
++.text
++.align 2
++.globl  ATL_asmdecor(asm_probe)
++.ent ATL_asmdecor(asm_probe)
++ATL_asmdecor(asm_probe):
++        mov     zero, v0
++        sll     a0, 1, a1
++        addw    a0, a1, v0
++        ret
++.end ATL_asmdecor(asm_probe)
+diff --git a/include/atlas_genparse.h b/include/atlas_genparse.h
+index 5254e83..f6b141b 100644
+--- a/include/atlas_genparse.h
++++ b/include/atlas_genparse.h
+@@ -6,13 +6,13 @@
+ #include <assert.h>
+ #include <string.h>
+ #include <ctype.h>
+-#define NASMD 11
++#define NASMD 12
+ enum ASMDIA
+    {ASM_None=0, gas_x86_32, gas_x86_64, gas_sparc, gas_ppc, gas_parisc,
+-    gas_mips, gas_arm, gas_arm64, gas_wow64, gas_s390};
++    gas_mips, gas_arm, gas_arm64, gas_wow64, gas_s390, gas_sw64};
+ static char *ASMNAM[NASMD] =
+    {"",     "GAS_x8632", "GAS_x8664", "GAS_SPARC", "GAS_PPC", "GAS_PARISC",
+-    "GAS_MIPS", "GAS_ARM", "GAS_ARM64", "GAS_WOW64", "GAS_S390"};
++    "GAS_MIPS", "GAS_ARM", "GAS_ARM64", "GAS_WOW64", "GAS_S390", "GAS_SW64"};
+ /*
+  * Basic data structure for forming queues with some minimal info
+  */
