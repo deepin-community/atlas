@@ -1,3 +1,9 @@
+atlas (3.10.3-11deepin1) unstable; urgency=medium
+
+  * feat: add sw64 support
+
+ -- Deepin Packages Builder <packages@deepin.org>  Thu, 22 May 2025 14:34:38 +0800
+
 atlas (3.10.3-11) unstable; urgency=medium
 
   * Rebuild against lapack 3.10.0
